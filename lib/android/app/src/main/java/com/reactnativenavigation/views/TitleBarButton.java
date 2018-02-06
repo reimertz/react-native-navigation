@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.reactnativenavigation.parse.Button;
 import com.reactnativenavigation.parse.Options;
+import com.reactnativenavigation.parse.Text;
 import com.reactnativenavigation.utils.ImageLoader;
 import com.reactnativenavigation.utils.UiUtils;
 
@@ -49,9 +50,11 @@ public class TitleBarButton implements MenuItem.OnMenuItemClickListener {
 			setTextColor();
 			setFontSize(menuItem);
 		}
-	}
 
-	void applyNavigationIcon(Context context) {
+        setTestId(button.testId);
+    }
+
+    void applyNavigationIcon(Context context) {
 		if (!hasIcon()) {
 			Log.w("RNN", "Left button needs to have an icon");
 			return;
@@ -104,7 +107,7 @@ public class TitleBarButton implements MenuItem.OnMenuItemClickListener {
 
 	private void setTextColor() {
 		UiUtils.runOnPreDrawOnce(this.toolbar, () -> {
-            ArrayList<View> outViews = findActualTextViewInMenuByLabel();
+            ArrayList<View> outViews = findActualTextViewInMenuByText();
             setTextColorForFoundButtonViews(outViews);
         });
 	}
@@ -125,13 +128,6 @@ public class TitleBarButton implements MenuItem.OnMenuItemClickListener {
 		return true;
 	}
 
-	@NonNull
-	private ArrayList<View> findActualTextViewInMenuByLabel() {
-		ArrayList<View> outViews = new ArrayList<>();
-		this.toolbar.findViewsWithText(outViews, button.title.get(), View.FIND_VIEWS_WITH_TEXT);
-		return outViews;
-	}
-
 	private void setTextColorForFoundButtonViews(ArrayList<View> buttons) {
 		for (View button : buttons) {
 			((TextView) button).setTextColor(this.button.buttonColor);
@@ -141,4 +137,21 @@ public class TitleBarButton implements MenuItem.OnMenuItemClickListener {
 	private boolean hasIcon() {
 		return button.icon != null;
 	}
+
+    private void setTestId(Text testId) {
+        if (!testId.hasValue()) return;
+        UiUtils.runOnPreDrawOnce(this.toolbar, () -> {
+            ArrayList<View> outViews = findActualTextViewInMenuByText();
+            if (outViews.size() > 0) {
+                outViews.get(0).setTag(testId.get());
+            }
+        });
+    }
+
+    @NonNull
+    private ArrayList<View> findActualTextViewInMenuByText() {
+        ArrayList<View> outViews = new ArrayList<>();
+        this.toolbar.findViewsWithText(outViews, button.title.get(), View.FIND_VIEWS_WITH_TEXT);
+        return outViews;
+    }
 }
